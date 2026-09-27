@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rota das Piscinas</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f2f7fa;
+      color: #222;
+    }
+
+    header {
+      background: #087ea4;
+      color: white;
+      padding: 22px 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 7px 0 0;
+    }
+
+    .container {
+      padding: 18px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 18px;
+      margin-bottom: 15px;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      color: #087ea4;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: #087ea4;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #05627f;
+    }
+
+    .cliente {
+      border-top: 1px solid #ddd;
+      padding: 15px 0;
+    }
+
+    .cliente:first-child {
+      border-top: none;
+    }
+
+    .cliente strong {
+      font-size: 18px;
+    }
+
+    .endereco {
+      margin: 7px 0;
+      color: #555;
+    }
+
+    .horario {
+      color: #087ea4;
+      font-weight: bold;
+    }
+
+    .mapa {
+      display: inline-block;
+      margin-top: 8px;
+      color: #087ea4;
+      font-weight: bold;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🏊 Rota das Piscinas</h1>
+  <p>Organize suas visitas e endereços</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Adicionar cliente</h2>
+
+    <input id="nome" type="text" placeholder="Nome do cliente">
+
+    <input id="endereco" type="text" placeholder="Endereço">
+
+    <input id="horario" type="text" placeholder="Horário">
+
+    <button onclick="adicionarCliente()">
+      + Adicionar à rota
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>📍 Minha rota</h2>
+
+    <div id="lista">
+      <p>Nenhum cliente cadastrado.</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+
+let clientes = JSON.parse(localStorage.getItem("clientes")) || [];
+
+function salvar() {
+  localStorage.setItem("clientes", JSON.stringify(clientes));
+}
+
+function mostrarClientes() {
+
+  const lista = document.getElementById("lista");
+
+  if (clientes.length === 0) {
+    lista.innerHTML = "<p>Nenhum cliente cadastrado.</p>";
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  clientes.forEach((cliente, index) => {
+
+    const div = document.createElement("div");
+
+    div.className = "cliente";
+
+    const enderecoGoogle =
+      "https://www.google.com/maps/search/?api=1&query=" +
+      encodeURIComponent(cliente.endereco);
+
+    div.innerHTML = `
+      <strong>${index + 1}. ${cliente.nome}</strong>
+
+      <div class="endereco">
+        📍 ${cliente.endereco}
+      </div>
+
+      <div class="horario">
+        ⏰ ${cliente.horario || "Sem horário definido"}
+      </div>
+
+      <a class="mapa"
+         href="${enderecoGoogle}"
+         target="_blank">
+         🗺️ Abrir no Google Maps
+      </a>
+    `;
+
+    lista.appendChild(div);
+  });
+}
+
+function adicionarCliente() {
+
+  const nome = document.getElementById("nome").value.trim();
+  const endereco = document.getElementById("endereco").value.trim();
+  const horario = document.getElementById("horario").value.trim();
+
+  if (!nome || !endereco) {
+    alert("Digite pelo menos o nome e o endereço.");
+    return;
+  }
+
+  clientes.push({
+    nome: nome,
+    endereco: endereco,
+    horario: horario
+  });
+
+  salvar();
+  mostrarClientes();
+
+  document.getElementById("nome").value = "";
+  document.getElementById("endereco").value = "";
+  document.getElementById("horario").value = "";
+}
+
+mostrarClientes();
+
+</script>
+
+</body>
+</html>
