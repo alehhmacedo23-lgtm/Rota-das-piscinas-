@@ -1,0 +1,12 @@
+{
+  "name": "Rota das Piscinas",
+  "short_name": "Rota Piscinas",
+  "description": "Rotas, atendimentos e entregas de produtos.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f7fa",
+  "theme_color": "#087ea4",
+  "lang": "pt-BR"
+}
