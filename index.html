@@ -158,10 +158,11 @@ button:active {
   background: #777;
 }
 
+
 /* ================= ENTREGAS / PRODUTOS ================= */
 
 .entregas-box {
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
 .entregas-box h2 {
@@ -209,8 +210,9 @@ button:active {
 .entrega-item {
   border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 12px;
+  padding: 13px;
   margin-top: 10px;
+  background: white;
 }
 
 .entrega-item.concluida {
@@ -223,8 +225,9 @@ button:active {
 }
 
 .entrega-meta {
-  margin-top: 5px;
+  margin-top: 6px;
   color: #555;
+  line-height: 1.5;
 }
 
 .btn-entrega {
@@ -232,10 +235,28 @@ button:active {
   padding: 10px;
 }
 
+.btn-entrega-concluir {
+  background: #168a4a;
+}
+
+.btn-entrega-concluir.feito {
+  background: #777;
+}
+
+.btn-entrega-excluir {
+  background: #b3261e;
+}
+
 .entrega-vazia {
   margin-top: 12px;
   color: #777;
   text-align: center;
+}
+
+.separador {
+  height: 1px;
+  background: #ddd;
+  margin: 25px 0;
 }
 
 </style>
@@ -250,7 +271,10 @@ button:active {
 
 <div class="container">
 
-<!-- ================= ROTAS ================= -->
+
+<!-- ========================================================= -->
+<!-- ======================= ROTAS =========================== -->
+<!-- ========================================================= -->
 
 <div class="card">
 
@@ -264,4 +288,1360 @@ button:active {
       ✅ 0/57 atendimentos concluídos
     </div>
 
- 
+  </div>
+
+
+  <div class="acoes">
+
+    <button
+      class="btn-rota"
+      onclick="iniciarRota()"
+    >
+      🚗 Iniciar rota
+    </button>
+
+
+    <button
+      class="btn-reset"
+      onclick="resetarConcluidos()"
+    >
+      🔄 Resetar
+    </button>
+
+  </div>
+
+
+  <div id="lista"></div>
+
+</div>
+
+
+
+<!-- ========================================================= -->
+<!-- ===================== ENTREGAS ========================== -->
+<!-- ========================================================= -->
+
+<div class="card entregas-box">
+
+  <h2>📦 Entregas de Produtos</h2>
+
+  <div class="form-grid">
+
+    <input
+      type="text"
+      id="entregaCliente"
+      placeholder="👤 Nome do cliente"
+    >
+
+
+    <input
+      type="text"
+      id="entregaEndereco"
+      placeholder="📍 Endereço da entrega"
+    >
+
+
+    <input
+      type="text"
+      id="entregaProduto"
+      placeholder="🧴 Produto"
+    >
+
+
+    <input
+      type="text"
+      id="entregaQuantidade"
+      placeholder="🔢 Quantidade"
+    >
+
+
+    <input
+      type="date"
+      id="entregaData"
+    >
+
+
+    <input
+      type="time"
+      id="entregaHora"
+    >
+
+
+    <textarea
+      id="entregaObservacoes"
+      placeholder="📝 Observações"
+    ></textarea>
+
+
+    <label class="checkbox-row">
+
+      <input
+        type="checkbox"
+        id="entregaLembrete"
+      >
+
+      🔔 Ativar lembrete
+
+    </label>
+
+
+    <button
+      class="btn-salvar-entrega"
+      onclick="salvarEntrega()"
+    >
+      💾 Salvar entrega
+    </button>
+
+  </div>
+
+
+  <div class="separador"></div>
+
+
+  <h2>📋 Entregas cadastradas</h2>
+
+  <div id="listaEntregas"></div>
+
+</div>
+
+
+</div>
+
+
+<script>
+
+
+/* ========================================================= */
+/* ======================== CLIENTES ======================== */
+/* ========================================================= */
+
+
+const clientes = [
+
+/* ================= SEGUNDA ================= */
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Márcia",
+endereco:"Rua Ícaro Sydow, 65",
+horario:"Manhã"
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Filomena",
+endereco:"R. Joaquim Galvão, 149",
+horario:"09h"
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Sueli/Virgílio",
+endereco:"R. Campos, 46",
+horario:""
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Sérgio",
+endereco:"R. Corveta Camacuã, 373",
+horario:"Almoço"
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Alexandre",
+endereco:"R. Pirapó, 137",
+horario:""
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Olivar",
+endereco:"Rua Inácio Pedroso, 211",
+horario:""
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Dione/Thomas",
+endereco:"Rua Horácio Bandieri, 76",
+horario:""
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Luciana",
+endereco:"Rua dos Limantos, 274",
+horario:""
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Patrícia",
+endereco:"Rua Martins, 386",
+horario:""
+},
+
+{
+dia:"SEGUNDA-FEIRA",
+nome:"Maria Clarecinda",
+endereco:"R. São Bráulio, 105",
+horario:"15h"
+},
+
+
+/* ================= TERÇA ================= */
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Marcelo",
+endereco:"Av. Albert Einstein, 1157",
+horario:""
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Juvenal",
+endereco:"Av. Morumbi, 1920",
+horario:""
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Paulo Gorgulho",
+endereco:"R. Ressedá, 311",
+horario:""
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Adriana",
+endereco:"R. Fausto de Almeida P. Penteado, 294",
+horario:""
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Lilian",
+endereco:"R. Magalhães de Araújo, 450",
+horario:"Até 15h"
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Dirce",
+endereco:"R. Horácio Bandieri, 453",
+horario:"14h30–16h — a cada 15 dias"
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Flávia",
+endereco:"Rua Ramos de Almeida, 90 — Casa 04",
+horario:""
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Romeu",
+endereco:"Rua Davi Pimentel, 750",
+horario:"Manhã"
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Eduardo",
+endereco:"Rua Adalivia de Toledo, 571",
+horario:"Até 14h"
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Alberto",
+endereco:"R. Padre Madureira, 153",
+horario:""
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Mari/Vera",
+endereco:"R. Luis Galhanone, 185",
+horario:""
+},
+
+{
+dia:"TERÇA-FEIRA",
+nome:"Sueli",
+endereco:"Rua José Maria Witaker, 301",
+horario:"Manhã"
+},
+
+
+/* ================= QUARTA ================= */
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Fabiano",
+endereco:"R. Dr. Luiz Migliano, 923 — Ap. 231 — Torre 03",
+horario:"Acesso cadastrado"
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Andrea",
+endereco:"R. Santo Eufredo, 173",
+horario:"Manhã"
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Maria da Conceição",
+endereco:"R. Valdomiro Fleury, 427",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"João Carlos",
+endereco:"R. Eldes de Souza Guedes, 88 — Apto 121",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Maria Cristina",
+endereco:"Rua Almirante Soares Dutra, 459",
+horario:"Almoço"
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Pompeu",
+endereco:"Rua Itapaiuna, 1800 — Ap. 253 — Amadrias",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Gilberto",
+endereco:"R. José Yazigi, 228",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Styliane",
+endereco:"Rua Pirapó, 370",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Anelisa",
+endereco:"R. Itapaiuna, 1800 — Ap. 253 — Agrias",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Otávio",
+endereco:"Rua Luiz Oliane, 242",
+horario:"Chave na loja"
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Rosina",
+endereco:"R. Itapaiuna, 1800 — Ap. 251 — Amadrias",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Ricardo",
+endereco:"Rua Corrégio, 295 — Apto 131",
+horario:""
+},
+
+{
+dia:"QUARTA-FEIRA",
+nome:"Margareth Olga",
+endereco:"R. Janaúba, 145",
+horario:"Antes das 14h"
+},
+
+
+/* ================= QUINTA ================= */
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Vera Lucia",
+endereco:"Praça Santos Coimbra, 50",
+horario:"Até 12h"
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Antônio",
+endereco:"R. Corgie Assad Abdalla, 1000 — Ap. 82 — Bl. B1",
+horario:""
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Dione/Thomas",
+endereco:"Rua Horácio Bandieri, 76",
+horario:""
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"David",
+endereco:"Rua Cardoso de Melo Junior, 422",
+horario:"Almoço"
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Luciana",
+endereco:"Rua dos Limantos, 274",
+horario:""
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Sueli/Virgílio",
+endereco:"R. Campos, 46",
+horario:""
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Sérgio",
+endereco:"R. Corveta Camacuã, 373",
+horario:""
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Patrícia",
+endereco:"Rua Martins, 386",
+horario:""
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Maria Clarecinda",
+endereco:"R. São Bráulio, 105",
+horario:"Até 14h"
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Maria Angela",
+endereco:"R. José Janarelli, 877",
+horario:"11h–14h"
+},
+
+{
+dia:"QUINTA-FEIRA",
+nome:"Tiago",
+endereco:"Rua Jabuticabeiras, 815",
+horario:""
+},
+
+
+/* ================= SEXTA ================= */
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Marcelo",
+endereco:"Av. Albert Einstein, 1157",
+horario:""
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Adriana",
+endereco:"R. Fausto de Almeida P. Penteado, 294",
+horario:""
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Paulo Gorgulho",
+endereco:"R. Ressedá, 311",
+horario:""
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Lilian",
+endereco:"R. Magalhães de Araújo, 450",
+horario:"Até 15h"
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Juvenal",
+endereco:"Av. Morumbi, 1920",
+horario:""
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Guilherme",
+endereco:"R. José Yazigi, 157",
+horario:""
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Romeu",
+endereco:"Rua Davi Pimentel, 750",
+horario:"Manhã"
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Eduardo",
+endereco:"Rua Adalivia de Toledo, 571",
+horario:"Até 14h"
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Alberto",
+endereco:"R. Padre Madureira, 153",
+horario:""
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Mari/Vera",
+endereco:"R. Luis Galhanone, 185",
+horario:""
+},
+
+{
+dia:"SEXTA-FEIRA",
+nome:"Beatriz",
+endereco:"Rua Paulo Puppo, 66",
+horario:""
+}
+
+];
+
+
+
+/* ========================================================= */
+/* ================= CONTROLE DOS CLIENTES ================= */
+/* ========================================================= */
+
+const CONCLUIDOS_KEY = "rotaPiscinasConcluidos";
+
+let concluidos = JSON.parse(
+  localStorage.getItem(CONCLUIDOS_KEY) || "{}"
+);
+
+
+function chaveCliente(cliente) {
+
+  return cliente.dia + "|" +
+         cliente.nome + "|" +
+         cliente.endereco;
+
+}
+
+
+function salvarConcluidos() {
+
+  localStorage.setItem(
+    CONCLUIDOS_KEY,
+    JSON.stringify(concluidos)
+  );
+
+}
+
+
+
+/* ================= MARCAR CONCLUÍDO ================= */
+
+function alternarConcluido(index) {
+
+  const cliente = clientes[index];
+
+  const chave = chaveCliente(cliente);
+
+  concluidos[chave] = !concluidos[chave];
+
+  salvarConcluidos();
+
+  mostrarClientes();
+
+}
+
+
+
+/* ================= INICIAR ROTA ================= */
+
+function iniciarRota() {
+
+  const pendente = clientes.find(
+    cliente => !concluidos[chaveCliente(cliente)]
+  );
+
+
+  if (!pendente) {
+
+    alert(
+      "🎉 Todos os atendimentos estão concluídos!"
+    );
+
+    return;
+
+  }
+
+
+  const mapa =
+    "https://www.google.com/maps/dir/?api=1" +
+    "&destination=" +
+    encodeURIComponent(pendente.endereco) +
+    "&travelmode=driving";
+
+
+  window.open(mapa, "_blank");
+
+}
+
+
+
+/* ================= RESETAR ================= */
+
+function resetarConcluidos() {
+
+  if (
+    confirm(
+      "Deseja realmente apagar todos os atendimentos concluídos?"
+    )
+  ) {
+
+    concluidos = {};
+
+    salvarConcluidos();
+
+    mostrarClientes();
+
+  }
+
+}
+
+
+
+/* ================= CONTADOR ================= */
+
+function atualizarProgresso() {
+
+  const total = clientes.length;
+
+
+  const feitos =
+    clientes.filter(
+      cliente =>
+        concluidos[chaveCliente(cliente)]
+    ).length;
+
+
+  document.getElementById(
+    "progresso"
+  ).textContent =
+    "✅ " +
+    feitos +
+    "/" +
+    total +
+    " atendimentos concluídos";
+
+}
+
+
+
+/* ================= MOSTRAR CLIENTES ================= */
+
+function mostrarClientes() {
+
+  const lista =
+    document.getElementById("lista");
+
+
+  let html = "";
+
+  let diaAtual = "";
+
+
+  clientes.forEach(
+    (cliente, index) => {
+
+
+      if (
+        cliente.dia !== diaAtual
+      ) {
+
+        diaAtual =
+          cliente.dia;
+
+
+        html += `
+          <div class="dia">
+            📅 ${cliente.dia}
+          </div>
+        `;
+
+      }
+
+
+      const mapa =
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+          cliente.endereco
+        );
+
+
+      const feito =
+        !!concluidos[
+          chaveCliente(cliente)
+        ];
+
+
+      html += `
+
+        <div class="cliente ${
+          feito ? "concluido" : ""
+        }">
+
+          <strong>
+            ${escapeHtml(cliente.nome)}
+          </strong>
+
+          <div class="endereco">
+            📍 ${escapeHtml(cliente.endereco)}
+          </div>
+
+          <div class="horario">
+            ⏰ ${
+              escapeHtml(
+                cliente.horario ||
+                "Sem horário definido"
+              )
+            }
+          </div>
+
+          <a
+            class="mapa"
+            href="${mapa}"
+            target="_blank"
+            rel="noopener"
+          >
+            🗺️ Abrir no Google Maps
+          </a>
+
+          <button
+            class="btn-concluir ${
+              feito ? "feito" : ""
+            }"
+            onclick="alternarConcluido(${index})"
+          >
+            ${
+              feito
+                ? "↩️ Desmarcar concluído"
+                : "✅ Concluído"
+            }
+          </button>
+
+        </div>
+
+      `;
+
+    }
+  );
+
+
+  lista.innerHTML = html;
+
+  atualizarProgresso();
+
+}
+
+
+
+/* ========================================================= */
+/* ===================== ENTREGAS =========================== */
+/* ========================================================= */
+
+
+const ENTREGAS_KEY = "entregasProdutos";
+
+
+function obterEntregas() {
+
+  try {
+
+    return JSON.parse(
+      localStorage.getItem(ENTREGAS_KEY) || "[]"
+    );
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao carregar entregas:",
+      erro
+    );
+
+    return [];
+
+  }
+
+}
+
+
+
+/* ================= SALVAR ENTREGA ================= */
+
+function salvarEntrega() {
+
+  const cliente =
+    document
+      .getElementById("entregaCliente")
+      .value
+      .trim();
+
+
+  const endereco =
+    document
+      .getElementById("entregaEndereco")
+      .value
+      .trim();
+
+
+  const produto =
+    document
+      .getElementById("entregaProduto")
+      .value
+      .trim();
+
+
+  const quantidade =
+    document
+      .getElementById("entregaQuantidade")
+      .value
+      .trim();
+
+
+  const data =
+    document
+      .getElementById("entregaData")
+      .value;
+
+
+  const hora =
+    document
+      .getElementById("entregaHora")
+      .value;
+
+
+  const observacoes =
+    document
+      .getElementById("entregaObservacoes")
+      .value
+      .trim();
+
+
+  const lembrete =
+    document
+      .getElementById("entregaLembrete")
+      .checked;
+
+
+
+  if (!cliente) {
+
+    alert("Informe o cliente.");
+
+    document
+      .getElementById("entregaCliente")
+      .focus();
+
+    return;
+
+  }
+
+
+  if (!endereco) {
+
+    alert("Informe o endereço.");
+
+    document
+      .getElementById("entregaEndereco")
+      .focus();
+
+    return;
+
+  }
+
+
+  if (!produto) {
+
+    alert("Informe o produto.");
+
+    document
+      .getElementById("entregaProduto")
+      .focus();
+
+    return;
+
+  }
+
+
+  if (!quantidade) {
+
+    alert("Informe a quantidade.");
+
+    document
+      .getElementById("entregaQuantidade")
+      .focus();
+
+    return;
+
+  }
+
+
+  if (!data) {
+
+    alert("Informe a data da entrega.");
+
+    document
+      .getElementById("entregaData")
+      .focus();
+
+    return;
+
+  }
+
+
+  if (!hora) {
+
+    alert("Informe o horário da entrega.");
+
+    document
+      .getElementById("entregaHora")
+      .focus();
+
+    return;
+
+  }
+
+
+
+  const entrega = {
+
+    id: Date.now(),
+
+    cliente: cliente,
+
+    endereco: endereco,
+
+    produto: produto,
+
+    quantidade: quantidade,
+
+    data: data,
+
+    hora: hora,
+
+    observacoes: observacoes,
+
+    lembrete: lembrete,
+
+    entregue: false,
+
+    criadoEm: new Date().toISOString()
+
+  };
+
+
+  const entregas =
+    obterEntregas();
+
+
+  entregas.push(entrega);
+
+
+  localStorage.setItem(
+    ENTREGAS_KEY,
+    JSON.stringify(entregas)
+  );
+
+
+
+  document
+    .getElementById("entregaCliente")
+    .value = "";
+
+
+  document
+    .getElementById("entregaEndereco")
+    .value = "";
+
+
+  document
+    .getElementById("entregaProduto")
+    .value = "";
+
+
+  document
+    .getElementById("entregaQuantidade")
+    .value = "";
+
+
+  document
+    .getElementById("entregaData")
+    .value = "";
+
+
+  document
+    .getElementById("entregaHora")
+    .value = "";
+
+
+  document
+    .getElementById("entregaObservacoes")
+    .value = "";
+
+
+  document
+    .getElementById("entregaLembrete")
+    .checked = false;
+
+
+  mostrarEntregas();
+
+
+  alert(
+    "📦 Entrega cadastrada com sucesso!"
+  );
+
+}
+
+
+
+/* ================= ALTERAR ENTREGA ================= */
+
+function alternarEntrega(id) {
+
+  const entregas =
+    obterEntregas();
+
+
+  const entrega =
+    entregas.find(
+      item => item.id === id
+    );
+
+
+  if (!entrega) {
+
+    return;
+
+  }
+
+
+  entrega.entregue =
+    !entrega.entregue;
+
+
+  localStorage.setItem(
+    ENTREGAS_KEY,
+    JSON.stringify(entregas)
+  );
+
+
+  mostrarEntregas();
+
+}
+
+
+
+/* ================= EXCLUIR ENTREGA ================= */
+
+function excluirEntrega(id) {
+
+  const confirmar =
+    confirm(
+      "Deseja realmente excluir esta entrega?"
+    );
+
+
+  if (!confirmar) {
+
+    return;
+
+  }
+
+
+  let entregas =
+    obterEntregas();
+
+
+  entregas =
+    entregas.filter(
+      item => item.id !== id
+    );
+
+
+  localStorage.setItem(
+    ENTREGAS_KEY,
+    JSON.stringify(entregas)
+  );
+
+
+  mostrarEntregas();
+
+}
+
+
+
+/* ================= FORMATAR DATA ================= */
+
+function formatarDataEntrega(data) {
+
+  if (!data) {
+
+    return "";
+
+  }
+
+
+  const partes =
+    data.split("-");
+
+
+  if (partes.length !== 3) {
+
+    return data;
+
+  }
+
+
+  return (
+    partes[2] +
+    "/" +
+    partes[1] +
+    "/" +
+    partes[0]
+  );
+
+}
+
+
+
+/* ================= ESCAPAR HTML ================= */
+
+function escapeHtml(valor) {
+
+  if (valor === null || valor === undefined) {
+
+    return "";
+
+  }
+
+
+  return String(valor)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+
+/* ================= MOSTRAR ENTREGAS ================= */
+
+function mostrarEntregas() {
+
+  const lista =
+    document.getElementById(
+      "listaEntregas"
+    );
+
+
+  if (!lista) {
+
+    return;
+
+  }
+
+
+  const entregas =
+    obterEntregas();
+
+
+  if (entregas.length === 0) {
+
+    lista.innerHTML = `
+      <div class="entrega-vazia">
+        📭 Nenhuma entrega cadastrada.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+
+  entregas.sort(
+    (a, b) => {
+
+      const dataA =
+        (a.data || "") +
+        " " +
+        (a.hora || "");
+
+      const dataB =
+        (b.data || "") +
+        " " +
+        (b.hora || "");
+
+      return dataA.localeCompare(dataB);
+
+    }
+  );
+
+
+
+  let html = "";
+
+
+
+  entregas.forEach(
+    entrega => {
+
+
+      const classe =
+        entrega.entregue
+          ? "entrega-item concluida"
+          : "entrega-item";
+
+
+      const status =
+        entrega.entregue
+          ? "✅ Entregue"
+          : "⏳ Pendente";
+
+
+      html += `
+
+        <div class="${classe}">
+
+          <strong>
+            📦 ${escapeHtml(entrega.produto)}
+          </strong>
+
+          <div class="entrega-meta">
+
+            👤 <strong>Cliente:</strong>
+            ${escapeHtml(entrega.cliente)}
+            <br>
+
+            📍 <strong>Endereço:</strong>
+            ${escapeHtml(entrega.endereco)}
+            <br>
+
+            🔢 <strong>Quantidade:</strong>
+            ${escapeHtml(entrega.quantidade)}
+            <br>
+
+            📅 <strong>Data:</strong>
+            ${formatarDataEntrega(entrega.data)}
+            <br>
+
+            ⏰ <strong>Horário:</strong>
+            ${escapeHtml(entrega.hora)}
+            <br>
+
+            📌 <strong>Status:</strong>
+            ${status}
+
+            ${
+              entrega.observacoes
+                ? `
+                  <br>
+                  📝 <strong>Observações:</strong>
+                  ${escapeHtml(entrega.observacoes)}
+                `
+                : ""
+            }
+
+            ${
+              entrega.lembrete
+                ? `
+                  <br>
+                  🔔 <strong>Lembrete ativado</strong>
+                `
+                : ""
+            }
+
+          </div>
+
+
+          <button
+            class="btn-entrega btn-entrega-concluir ${
+              entrega.entregue ? "feito" : ""
+            }"
+            onclick="alternarEntrega(${entrega.id})"
+          >
+            ${
+              entrega.entregue
+                ? "↩️ Marcar como pendente"
+                : "✅ Marcar como entregue"
+            }
+          </button>
+
+
+          <button
+            class="btn-entrega btn-entrega-excluir"
+            onclick="excluirEntrega(${entrega.id})"
+          >
+            🗑️ Excluir
+          </button>
+
+        </div>
+
+      `;
+
+    }
+  );
+
+
+  lista.innerHTML = html;
+
+}
+
+
+
+/* ========================================================= */
+/* ====================== INICIALIZAÇÃO ===================== */
+/* ========================================================= */
+
+
+mostrarClientes();
+
+mostrarEntregas();
+
+
+</script>
+
+</body>
+</html>
