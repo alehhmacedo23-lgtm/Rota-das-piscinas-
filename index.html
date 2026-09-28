@@ -47,11 +47,6 @@ header p {
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.card h2 {
-  margin-top: 0;
-  color: #087ea4;
-}
-
 .dia {
   background: #087ea4;
   color: white;
@@ -67,8 +62,15 @@ header p {
   padding: 15px 0;
 }
 
-.cliente:last-child {
-  border-bottom: none;
+.cliente.concluido {
+  opacity: 0.6;
+  background: #eef8ef;
+  padding: 15px 10px;
+  border-radius: 10px;
+}
+
+.cliente.concluido strong {
+  text-decoration: line-through;
 }
 
 .cliente strong {
@@ -103,6 +105,19 @@ header p {
   margin-bottom: 15px;
 }
 
+.progresso {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.acoes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
 button {
   width: 100%;
   padding: 14px;
@@ -113,6 +128,28 @@ button {
   font-size: 16px;
   font-weight: bold;
   margin-top: 10px;
+}
+
+.acoes button {
+  margin-top: 0;
+}
+
+.btn-rota {
+  background: #087ea4;
+}
+
+.btn-reset {
+  background: #777;
+}
+
+.btn-concluir {
+  background: #168a4a;
+  font-size: 14px;
+  padding: 10px;
+}
+
+.btn-concluir.feito {
+  background: #777;
 }
 
 </style>
@@ -130,8 +167,22 @@ button {
 <div class="card">
 
 <div class="contador">
-  👥 42 clientes cadastrados<br>
+  👥 42 cadastros de clientes<br>
   📅 57 atendimentos semanais
+
+  <div id="progresso" class="progresso">
+    ✅ 0/57 atendimentos concluídos
+  </div>
+</div>
+
+<div class="acoes">
+  <button class="btn-rota" onclick="iniciarRota()">
+    🚗 Iniciar rota
+  </button>
+
+  <button class="btn-reset" onclick="resetarConcluidos()">
+    🔄 Resetar
+  </button>
 </div>
 
 <div id="lista"></div>
@@ -308,7 +359,7 @@ horario:"Manhã"
 dia:"QUARTA-FEIRA",
 nome:"Fabiano",
 endereco:"R. Dr. Luiz Migliano, 923 — Ap. 231 — Torre 03",
-horario:"Senha: ROSINA — porta de cima — 110947"
+horario:"Acesso cadastrado"
 },
 
 {
@@ -555,57 +606,221 @@ horario:""
 
 ];
 
+
+/* ================= CONTROLE DOS ATENDIMENTOS ================= */
+
+const CONCLUIDOS_KEY = "rotaPiscinasConcluidos";
+
+let concluidos = JSON.parse(
+  localStorage.getItem(CONCLUIDOS_KEY) || "{}"
+);
+
+function chaveCliente(cliente) {
+  return cliente.dia + "|" +
+         cliente.nome + "|" +
+         cliente.endereco;
+}
+
+function salvarConcluidos() {
+
+  localStorage.setItem(
+    CONCLUIDOS_KEY,
+    JSON.stringify(concluidos)
+  );
+
+}
+
+
+/* ================= MARCAR CONCLUÍDO ================= */
+
+function alternarConcluido(index) {
+
+  const cliente = clientes[index];
+
+  const chave = chaveCliente(cliente);
+
+  concluidos[chave] = !concluidos[chave];
+
+  salvarConcluidos();
+
+  mostrarClientes();
+
+}
+
+
+/* ================= INICIAR ROTA ================= */
+
+function iniciarRota() {
+
+  const pendente = clientes.find(
+    cliente => !concluidos[chaveCliente(cliente)]
+  );
+
+  if (!pendente) {
+
+    alert(
+      "🎉 Todos os atendimentos estão concluídos!"
+    );
+
+    return;
+  }
+
+  const mapa =
+    "https://www.google.com/maps/dir/?api=1" +
+    "&destination=" +
+    encodeURIComponent(pendente.endereco) +
+    "&travelmode=driving";
+
+  window.open(mapa, "_blank");
+
+}
+
+
+/* ================= RESETAR ================= */
+
+function resetarConcluidos() {
+
+  if (
+    confirm(
+      "Deseja realmente apagar todos os atendimentos concluídos?"
+    )
+  ) {
+
+    concluidos = {};
+
+    salvarConcluidos();
+
+    mostrarClientes();
+
+  }
+
+}
+
+
+/* ================= CONTADOR ================= */
+
+function atualizarProgresso() {
+
+  const total = clientes.length;
+
+  const feitos =
+    clientes.filter(
+      cliente =>
+        concluidos[chaveCliente(cliente)]
+    ).length;
+
+  document.getElementById(
+    "progresso"
+  ).textContent =
+    "✅ " +
+    feitos +
+    "/" +
+    total +
+    " atendimentos concluídos";
+
+}
+
+
+/* ================= MOSTRAR CLIENTES ================= */
+
 function mostrarClientes() {
 
-  const lista = document.getElementById("lista");
+  const lista =
+    document.getElementById("lista");
 
   let html = "";
+
   let diaAtual = "";
 
-  clientes.forEach((cliente, index) => {
 
-    if (cliente.dia !== diaAtual) {
+  clientes.forEach(
+    (cliente, index) => {
 
-      diaAtual = cliente.dia;
+      if (
+        cliente.dia !== diaAtual
+      ) {
+
+        diaAtual =
+          cliente.dia;
+
+        html += `
+          <div class="dia">
+            📅 ${cliente.dia}
+          </div>
+        `;
+
+      }
+
+
+      const mapa =
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+          cliente.endereco
+        );
+
+
+      const feito =
+        !!concluidos[
+          chaveCliente(cliente)
+        ];
+
 
       html += `
-        <div class="dia">
-          📅 ${cliente.dia}
+
+        <div class="cliente ${
+          feito ? "concluido" : ""
+        }">
+
+          <strong>
+            ${cliente.nome}
+          </strong>
+
+          <div class="endereco">
+            📍 ${cliente.endereco}
+          </div>
+
+          <div class="horario">
+            ⏰ ${
+              cliente.horario ||
+              "Sem horário definido"
+            }
+          </div>
+
+          <a
+            class="mapa"
+            href="${mapa}"
+            target="_blank"
+          >
+            🗺️ Abrir no Google Maps
+          </a>
+
+          <button
+            class="btn-concluir ${
+              feito ? "feito" : ""
+            }"
+            onclick="alternarConcluido(${index})"
+          >
+            ${
+              feito
+                ? "↩️ Desmarcar concluído"
+                : "✅ Concluído"
+            }
+          </button>
+
         </div>
+
       `;
+
     }
+  );
 
-    const mapa =
-      "https://www.google.com/maps/search/?api=1&query=" +
-      encodeURIComponent(cliente.endereco);
-
-    html += `
-      <div class="cliente">
-
-        <strong>
-          ${cliente.nome}
-        </strong>
-
-        <div class="endereco">
-          📍 ${cliente.endereco}
-        </div>
-
-        <div class="horario">
-          ⏰ ${cliente.horario || "Sem horário definido"}
-        </div>
-
-        <a class="mapa"
-           href="${mapa}"
-           target="_blank">
-           🗺️ Abrir no Google Maps
-        </a>
-
-      </div>
-    `;
-  });
 
   lista.innerHTML = html;
+
+  atualizarProgresso();
+
 }
+
 
 mostrarClientes();
 
