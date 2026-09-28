@@ -828,3 +828,62 @@ mostrarClientes();
 
 </body>
 </html>
+        alert("Informe o produto.");
+        document.getElementById("entregaProduto").focus();
+        return;
+    }
+
+    if (!quantidade) {
+        alert("Informe a quantidade.");
+        document.getElementById("entregaQuantidade").focus();
+        return;
+    }
+
+    if (!data) {
+        alert("Informe a data da entrega.");
+        document.getElementById("entregaData").focus();
+        return;
+    }
+
+    if (!hora) {
+        alert("Informe o horário da entrega.");
+        document.getElementById("entregaHora").focus();
+        return;
+    }
+
+    const entrega = {
+        id: Date.now(),
+        cliente: cliente,
+        endereco: endereco,
+        produto: produto,
+        quantidade: quantidade,
+        data: data,
+        hora: hora,
+        observacoes: observacoes,
+        lembrete: lembrete,
+        entregue: false,
+        criadoEm: new Date().toISOString()
+    };
+
+    let entregas =
+        JSON.parse(localStorage.getItem("entregasProdutos")) || [];
+
+    entregas.push(entrega);
+
+    localStorage.setItem(
+        "entregasProdutos",
+        JSON.stringify(entregas)
+    );
+
+    document.getElementById("entregaCliente").value = "";
+    document.getElementById("entregaEndereco").value = "";
+    document.getElementById("entregaProduto").value = "";
+    document.getElementById("entregaQuantidade").value = "";
+    document.getElementById("entregaData").value = "";
+    document.getElementById("entregaHora").value = "";
+    document.getElementById("entregaObservacoes").value = "";
+    document.getElementById("entregaLembrete").checked = false;
+
+    alert("Entrega cadastrada com sucesso!");
+
+   
